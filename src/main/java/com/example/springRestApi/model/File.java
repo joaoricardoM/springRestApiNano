@@ -25,23 +25,27 @@ public class File {
     /**
      * O nome do arquivo.
      */
+
     @Column
     private String nome;
     /**
      * A data de upload do arquivo.
      */
+
     @Column
     @CreatedDate
     private LocalDateTime uploadDate;
     /**
      * O conteúdo do arquivo. Este é armazenado como um array de bytes.
      */
+
     @Column
     @Lob
     private byte[] file;
     /**
      * As tags associadas ao arquivo.
      */
+
     @OneToOne(orphanRemoval = true)
     private Tags tags;
 }

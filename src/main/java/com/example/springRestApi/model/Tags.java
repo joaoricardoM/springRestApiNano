@@ -3,6 +3,9 @@ package com.example.springRestApi.model;
 import lombok.*;
 
 import javax.persistence.*;
+/**
+ * Classe de entidade que representa as tags de um arquivo.
+ */
 
 @Entity
 @Table
