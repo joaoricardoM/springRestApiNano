@@ -18,6 +18,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 
+/**
+ * Classe de serviço para manipulação de operações de arquivo.
+ */
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -25,7 +28,6 @@ public class FileService {
 
     private final FileRepository repository;
     private final TagsRepository tagsRepository;
-
 
     /**
      * Salva um arquivo no repositório.
@@ -43,37 +45,34 @@ public class FileService {
                     .tags(tags)
                     .build();
             return repository.save(fileToSave);
-        } catch(IOException e){
+        } catch (IOException e) {
             log.error(e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * Recupera um arquivo pelo seu ID
+     * Recupera um arquivo pelo seu ID.
      *
-     * @param id o ID do arquivo a ser recuperado
-     * @return O arquivo recuperado
-     * @throws ResponseStatusException se o arquivo não for encontrado
+     * @param id O ID do arquivo a ser recuperado.
+     * @return O arquivo recuperado.
+     * @throws ResponseStatusException Se o arquivo não for encontrado.
      */
-
-    public File getById(Integer id){
+    public File getById(Integer id) {
         return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Arquivo não encontrado"));
     }
 
     /**
-     * Extrai tags de um arquivo
+     * Extrai tags de um arquivo.
      *
-     * @param file o arquivo do qual extrair as tags
-     * @return As tags extraidas
-     * @throws ResponseStatusException se o arquivo não for do tipo XML ou se um arquivo com o mesmo ID já existir.
+     * @param file O arquivo do qual extrair tags.
+     * @return As tags extraídas.
+     * @throws ResponseStatusException Se o arquivo não for do tipo XML ou se um arquivo com o mesmo ID já existir.
      */
-
-    public Tags extractTags(MultipartFile file){
-        if(!"application/xml".equalsIgnoreCase(file.getContentType())){
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "O arquivo deve ser" + "do tipo XML");
+    public Tags extractTags(MultipartFile file) {
+        if (!("text/xml".equalsIgnoreCase(file.getContentType()) || "application/xml".equalsIgnoreCase(file.getContentType()))) {
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "O arquivo deve ser do tipo XML");
         }
-
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -81,13 +80,11 @@ public class FileService {
 
             doc.getDocumentElement().normalize();
 
-            String infNFeId = getAttributeValue(doc, "infNeId", "Id");
+            String infNFeId = getAttributeValue(doc, "infNFe", "Id");
             log.info("id: {}", infNFeId);
-
-            if(tagsRepository.existsByNFeId(infNFeId)){
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um arquivo com o id" + infNFeId);
+            if (tagsRepository.existsByNFeId(infNFeId)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um arquivo com o id " + infNFeId);
             };
-
             String dhEmi = getTagValue(doc, "dhEmi");
             log.info("dhEmi: {}", dhEmi);
             String nNF = getTagValue(doc, "nNF");
@@ -111,33 +108,30 @@ public class FileService {
                     .NFeId(infNFeId)
                     .dhEmi(dhEmi)
                     .nNF(nNF)
+                    .cUF(cUF)
                     .emitCNPJ(cnpjEmitente)
                     .xFant(xFantEmitente)
                     .destCNPJ(cnpjDestinatario)
                     .xNome(xNomeDestinatario)
                     .vTotTrib(vTotTrib)
                     .vNF(vNF)
-                    .build()
-            );
-
+                    .build());
         } catch (ResponseStatusException e) {
             throw new ResponseStatusException(e.getStatus(), e.getReason());
         } catch (Exception e) {
-            log.error("An error occured while extracting the tags", e);
+            log.error("An error occurred while extracting the tags", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * Exclui um arquivo pelo seu ID
+     * Exclui um arquivo pelo seu ID.
      *
-     * @param id O ID do arquivo a ser esxcluido
+     * @param id O ID do arquivo a ser excluído.
      * @throws ResponseStatusException Se o arquivo não for encontrado.
-     * @return
      */
-
     public void delete(Integer id) {
-        if(!repository.existsById(id)) {
+        if (!repository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Arquivo não encontrado");
         }
         repository.deleteById(id);
@@ -146,9 +140,9 @@ public class FileService {
     private static String getAttributeValue(Document doc, String tagName, String attrName) {
         NodeList nodeList = doc.getElementsByTagName(tagName);
 
-        if(nodeList.getLength() > 0){
+        if (nodeList.getLength() > 0) {
             Node node = nodeList.item(0);
-            if(node != null) {
+            if (node != null) {
                 Node attrNode = node.getAttributes().getNamedItem(attrName);
                 if (attrNode != null) {
                     return attrNode.getNodeValue();
@@ -158,12 +152,12 @@ public class FileService {
         return null;
     }
 
-    private String getTagValue(Document doc, String tagName) {
+    private static String getTagValue(Document doc, String tagName) {
         NodeList nodeList = doc.getElementsByTagName(tagName);
 
-        if(nodeList.getLength() > 0) {
+        if (nodeList.getLength() > 0) {
             Node node = nodeList.item(0);
-            if(node != null) {
+            if (node != null) {
                 return node.getTextContent();
             }
         }
