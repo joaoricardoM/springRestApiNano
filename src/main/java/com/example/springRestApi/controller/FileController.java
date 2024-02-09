@@ -1,6 +1,8 @@
 package com.example.springRestApi.controller;
 
 import com.example.springRestApi.model.File;
+import com.example.springRestApi.model.dto.FileDto;
+import com.example.springRestApi.model.dto.TagsDto;
 import com.example.springRestApi.services.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +16,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/files")
 @RequiredArgsConstructor
+@CrossOrigin(value = "http://localhost:3000")
 public class FileController {
 
     private final FileService service;
@@ -74,6 +77,20 @@ public class FileController {
     public ResponseEntity<byte[]> getFile(@PathVariable Integer id) {
         var file = service.getById(id);
         return ResponseEntity.ok().header("Content-Type", "application/xml").body(file.getFile());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<FileDto>> getAllFiles() {
+        return ResponseEntity.ok(service.getAllFiles().stream().map(file -> {
+            var url = buildFileURL(file);
+            return FileDto.builder()
+                    .id(file.getId())
+                    .nome(file.getNome())
+                    .uploadDate(file.getUploadDate())
+                    .url(url.toString())
+                    .tags(new TagsDto(file.getTags()))
+                    .build();
+        }).collect(Collectors.toList()));
     }
 
     /**

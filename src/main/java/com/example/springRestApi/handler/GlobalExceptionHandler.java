@@ -7,20 +7,20 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
-@Slf4j
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = {ResponseStatusException.class})
-    public ResponseEntity<Object> handlerGenericException(ResponseStatusException e){
+    public ResponseEntity<Object> handleGenericException(ResponseStatusException e) {
         log.error(e.getMessage());
 
-        return new ResponseEntity<>(e.getReason(), e.getStatus());
+        return new ResponseEntity<>(e.getReason(),e.getStatus());
     }
 
     @ExceptionHandler(value = {Exception.class})
-    public ResponseEntity<Object> handlerGenericException(Exception e) {
+    public ResponseEntity<Object> handleGenericException(Exception e) {
         log.error(e.getMessage());
 
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        throw  new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

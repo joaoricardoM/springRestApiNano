@@ -4,6 +4,6 @@ import com.example.springRestApi.model.Tags;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TagsRepository extends JpaRepository<Tags, String> {
-
-    boolean existsByNFeId(String NFeId);
+    boolean existsByNFeId(String infNFeId);
 }
+

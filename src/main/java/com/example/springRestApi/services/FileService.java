@@ -17,6 +17,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Classe de serviço para manipulação de operações de arquivo.
@@ -70,8 +71,9 @@ public class FileService {
      * @throws ResponseStatusException Se o arquivo não for do tipo XML ou se um arquivo com o mesmo ID já existir.
      */
     public Tags extractTags(MultipartFile file) {
-        if (!("text/xml".equalsIgnoreCase(file.getContentType()) || "application/xml".equalsIgnoreCase(file.getContentType()))) {
-            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "O arquivo deve ser do tipo XML");
+        if (!file.getContentType().contains("xml")) {
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "O arquivo deve ser " +
+                    "do tipo XML");
         }
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -163,4 +165,9 @@ public class FileService {
         }
         return null;
     }
+
+    public List<File> getAllFiles() {
+        return repository.findAll();
+    }
 }
+

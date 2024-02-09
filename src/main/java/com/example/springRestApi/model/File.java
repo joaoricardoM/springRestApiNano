@@ -33,6 +33,11 @@ public class File {
     @CreatedDate
     private LocalDateTime uploadDate;
     /**
+     * A URL do arquivo.
+     */
+    @Column
+    private String url;
+    /**
      * O conteúdo do arquivo. Este é armazenado como um array de bytes.
      */
     @Column
